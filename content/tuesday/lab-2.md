@@ -1,6 +1,6 @@
 # Lab 2 - Changing Tempo
 
-*Note: This lab will start at the end of Lab 1. In case you were unable to complete it, you can download a starting directory here (TODO: add link).*
+*Note: This lab will start at the end of Lab 1. In case you were unable to complete it, you can download a starting directory [here](text.txt)*
 
 In this lab, we will be exploring how chemical different chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the $g$-mode period spacing. 
 
