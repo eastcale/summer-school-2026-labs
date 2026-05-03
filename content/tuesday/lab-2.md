@@ -23,6 +23,3 @@ $$
 N^2 \approx \frac{g^2\rho}{p}\left(\nabla_{\mathrm{ad}}-\nabla+\nabla_{\mu}\right),
 $$
 where
-$$
-\nabla = \frac{d\,\ln T}{d\, \ln p}, \\ \nabla_{\mathrm{ad}}=\left(\frac{\partial \, \ln T}{\partial \, \ln p}\right)_{\mathrm{ad}}, \\ \mathrm{and} \\ \nabla_{\mu}=\frac{d\, \ln \mu}{d\, \n p}.
-$$
