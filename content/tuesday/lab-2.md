@@ -1,7 +1,5 @@
 # Lab 2 - Changing Tempo
 
-*Note: This lab will start at the end of Lab 1. In case you were unable to complete it, you can download a starting directory [here](text.txt)*
-
 In this lab, we will be exploring how chemical different chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the $g$-mode period spacing. 
 
 As a review, the oscillation period, $\Pi_{n, \ell}$ for a $g$-mode of radial order $n$ and spherical degree $\ell$ is given by
@@ -27,5 +25,21 @@ $$
 \nabla = \frac{d\ln T}{d\ln p}, \quad
 \nabla_{\mathrm{ad}} = \left(\frac{\partial \ln T}{\partial \ln p}\right)_{\mathrm{ad}}, \quad
 \mathrm{and} \quad
-\nabla_\mu = \frac{d\ln \mu}{d\ln p}.
+\nabla_{\mu} = \frac{d\ln \mu}{d\ln p}.
 $$
+
+If $\nabla_{\mu}\neq = 0$, then spikes in the Brunt-Väisälä will *trap* $g$-modes; such mode trapping leads to periodic *dips* in a plot of $\Delta \Pi_{1}$ vs. $\Pi_{n, 1}$. We are going to induce a chemical gradient in our model by evolving through the main-sequence to investigate these dips.
+
+Start by copying a clean working directory from `$MESA_DIR/star/work` and placing it where you want it to be. It is helpful to rename it something descriptive at this point as well--something like `day2_lab2`.
+
+> [!WARNING]
+> It is generally not a great idea to work directly inside the clean `$MESA_DIR/star/work` work directory.
+> It is instead generally best practice to copy it and place it somewhere else before making any changes.
+
+{{< details title="Hint: Copying a work directory" closed="true" >}}
+We will copy the clean directory from `$MESA_DIR/star/work` and place it somewhere else using the Linux command `cp`. If you are already where you want the work directory to be, you can use the shortcut `./` to say "place this here". Otherwise, replace `./` with the path to your intended location. If you were to use the shortcut, it would look like this:
+```
+cp -r $MESA_DIR/star/work ./day2_lab2
+```
+The `-r` is a flag that tells the system to copy the work directory *recursively*. In other words, it copies all of the contents inside the directory, not just the directory itself. If you have any problems, make sure that your `MESA` environment variables are set. This will not work if `$MESA_DIR` is undefined.
+{{< /details >}}
