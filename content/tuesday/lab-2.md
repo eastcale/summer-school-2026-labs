@@ -1,4 +1,8 @@
-# Lab 2 - Changing Tempo
+### Lab 2 - Changing Tempo
+
+## Learning Goals
+
+# heading test
 
 In this lab, we will be exploring how chemical different chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the *g*-mode period spacing. 
 
