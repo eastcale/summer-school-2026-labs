@@ -55,7 +55,7 @@ For now, we are only going to edit `inlist_project`; open it up and take a secon
 
 We are going to build our inlist one namelist at a time. Starting at the top, we are going to alter the `&star_job` namelist first. For this section, the [star_job reference page](https://docs.mesastar.org/en/26.4.1/reference/star_job.html) will be a helpful resource.
 
-Rather than create a pre-main sequence model every time we run our inlist, we are going to start from a pre-computed zero-age main sequence model named `zams.mod`, which you can download [here](./tuesday/zams.mod) (TODO: ADD MODEL FILE). This model is for a $5 \, \mathrm{M_{\odot}}$ star with solar metallicty at the zero-age main sequence.
+Rather than create a pre-main sequence model every time we run our inlist, we are going to start from a pre-computed zero-age main sequence model named `zams.mod`, which you can download [here](/tuesday/zams.mod) (TODO: ADD MODEL FILE). This model is for a $5 \, \mathrm{M_{\odot}}$ star with solar metallicty at the zero-age main sequence.
 
 We also won't need to save a model at the end of our run, since we are only interested in what is happening *during* the main-sequence (we are going to terminate at the terminal-age main sequence). Therefore, we **can remove the three lines that refer to creating a pre-main sequence model or saving a model at termination**.
 
