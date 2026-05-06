@@ -1,11 +1,13 @@
-### Lab 2 - Changing Tempo
+# Lab 2 - Changing Tempo
 
 ## Learning Goals
 
-# heading test
+In this lab, we will be exploring how chemical different chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the *g*-mode period spacing. To do this, we will learn how to:
 
-In this lab, we will be exploring how chemical different chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the *g*-mode period spacing. 
+- Run `MESA` starting from a precomputed `.mod` file
+- Modify `run_star_extras.f90` to output profiles at set points in time 
 
+## Background Science
 As a review, the oscillation period, $\Pi_{n, \ell}$ for a *g*-mode of radial order $n$ and spherical degree $\ell$ is given by
 $$
 \Pi_{n, \ell} = \frac{\Pi_0}{\sqrt{\ell(\ell + 1)}}(n+\epsilon),
@@ -32,8 +34,9 @@ $$
 \nabla_{\mu} = \frac{d\ln \mu}{d\ln p}.
 $$
 
-If $\nabla_{\mu}\neq 0$, then spikes in the Brunt-Väisälä will *trap* *g*-modes; such mode trapping leads to periodic *dips* in a plot of $\Delta \Pi_{1}$ vs. $\Pi_{n, 1}$. We are going to induce a chemical gradient in our model by evolving through the main-sequence to investigate these dips.
+If $\nabla_{\mu} \neq 0$, then spikes in the Brunt-Väisälä will *trap* *g*-modes; such mode trapping leads to periodic *dips* in a plot of $\Delta \Pi_{1}$ vs. $\Pi_{n, 1}$. We are going to induce a chemical gradient in our model by evolving through the main-sequence to investigate these dips.
 
+## Task 1: A Fresh Start
 **Start by copying a clean working directory from `$MESA_DIR/star/work` and placing it where you want it to be.** It is helpful to rename it something descriptive at this point as well--something like `day2_lab2`.
 
 > [!WARNING]
@@ -47,28 +50,12 @@ cp -r $MESA_DIR/star/work ./day2_lab2
 The `-r` is a flag that tells the system to copy the work directory *recursively*. In other words, it copies all of the contents inside the directory, not just the directory itself. If you have any problems, make sure that your `MESA` environment variables are set. This will not work if `$MESA_DIR` is undefined.
 {{< /details >}}
 
+## Task 2: Getting the (`&star_`) Job Done
 For now, we are only going to edit `inlist_project`; open it up and take a second to see what the basic work inlist looks like.
 
 We are going to build our inlist one namelist at a time. Starting at the top, we are going to alter the `&star_job` namelist first. For this section, the [star_job reference page](https://docs.mesastar.org/en/26.4.1/reference/star_job.html) will be a helpful resource.
-```fortran
-&star_job
 
-   ! see star/defaults/star_job.defaults
-
-   ! begin with a pre-main sequence model
-   create_pre_main_sequence_model = .true.
-
-   ! save a model at the end of the run
-   save_model_when_terminate = .false.
-   save_model_filename = '15M_at_TAMS.mod'
-
-   ! display on-screen plots
-   pgstar_flag = .true.
-
-/ ! end of star_job namelist
-
-```
-Rather than create a pre-main sequence model every time we run our inlist, we are going to start from a pre-computed zero-age main sequence model named `zams.mod`, which you can find here (TODO: ADD MODEL FILE). This model is for a $5 \, \mathrm{M_{\odot}}$ star with solar metallicty at the zero-age main sequence.
+Rather than create a pre-main sequence model every time we run our inlist, we are going to start from a pre-computed zero-age main sequence model named `zams.mod`, which you can download [here](./zams.mod) (TODO: ADD MODEL FILE). This model is for a $5 \, \mathrm{M_{\odot}}$ star with solar metallicty at the zero-age main sequence.
 
 We also won't need to save a model at the end of our run, since we are only interested in what is happening *during* the main-sequence (we are going to terminate at the terminal-age main sequence). Therefore, we **can remove the three lines that refer to creating a pre-main sequence model or saving a model at termination**.
 
