@@ -167,7 +167,9 @@ The next section we will need to change is the "mesh" section. This section is f
 
 To increase the resolution of our model, we are going to use the variable `mesh_delta_coeff`, which is a multiplicative factor on $\Delta r$. In other words, it is $a$ in the expression $a\Delta r$. By default, `MESA` sets `mesh_delta_coeff = 1`. If we want to *increase* the resolution, we need to set `mesh_delta_coeff` to a value *less than 1* to break our model into smaller chunks.
 
-Increasing the resolution of a model can be a bit more computationally expensive depending on your machine. Lower values for `mesh_delta_coeff` will take longer to ran than others. It is then up to you to make an informed decision based on the specifications of your specific machine. 
+Increasing the resolution of a model can be a bit more computationally expensive depending on your machine. Lower values for `mesh_delta_coeff` will take longer to ran than others. It is then up to you to make an informed decision based on the specifications of your specific machine. The primary factor that will effect the time it takes your model to run is the `OMP_NUM_THREADS` parameter you have set in your environment variables. Based on the value you set there, **use the following plot to choose a value for `mesh_delta_coeff` that will ensure your model will run in less than 5 minutes**. Essentially, if you have `OMP_NUM_THREADS > 2`, any value will work; feel free to pick any value (less than 1!) and be ready to compare with your tablemates at the end of the lab.
+
+![Timing test](timing.png)
 
 ## Task 5: Insert funny output pun here
 Finally, we will need to edit the "output" section of the namelist to make sure that our model makes the data we need to give to GYRE. `MESA` does not create a pulsation profile by default, so we need to turn on the correct flag to make sure it does. **Explore the "controls for output" section of the controls reference page and find the flag to write pulsation profiles for GYRE**. Check the following hint if you get stuck or want to check your answer
