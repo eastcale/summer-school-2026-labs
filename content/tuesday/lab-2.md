@@ -162,14 +162,14 @@ At this point, your `&controls` namelist should look something like:
 ```
 {{< /details >}}
 
-## Task 4: \[Insert funny mesh pun here\]
+## Task 4: Insert funny mesh pun here
 The next section we will need to change is the "mesh" section. This section is for controls related to the spatial resolution of our model. `MESA` operates by separating a stellar model into concentric rings with some thickness we will call $\Delta r$. To make sure that important physics are captured, `MESA` also has an adaptive mesh refinement (AMR) algorithm that will decrease $\Delta r$ in regions as needed or increase $\Delta r$ in regions where high resolution isn't necessary. However, it is entirely possible that the AMR algorithm doesn't fully capture the physics you are interested in--sometimes you may want a higher spatial resolution. In our case, `GYRE` is sensitive to spatial resolution, so we will want to increase the default resolution.
 
 To increase the resolution of our model, we are going to use the variable `mesh_delta_coeff`, which is a multiplicative factor on $\Delta r$. In other words, it is $a$ in the expression $a\Delta r$. By default, `MESA` sets `mesh_delta_coeff = 1`. If we want to *increase* the resolution, we need to set `mesh_delta_coeff` to a value *less than 1* to break our model into smaller chunks.
 
 Increasing the resolution of a model can be a bit more computationally expensive depending on your machine. Lower values for `mesh_delta_coeff` will take longer to ran than others. It is then up to you to make an informed decision based on the specifications of your specific machine. 
 
-## Task 4: \[Insert funny output pun here\]
+## Task 5: Insert funny output pun here
 Finally, we will need to edit the "output" section of the namelist to make sure that our model makes the data we need to give to GYRE. `MESA` does not create a pulsation profile by default, so we need to turn on the correct flag to make sure it does. **Explore the "controls for output" section of the controls reference page and find the flag to write pulsation profiles for GYRE**. Check the following hint if you get stuck or want to check your answer
 
 {{< details title="Hint: Saving pulsation profiles for `GYRE`" closed="true" >}}
@@ -191,7 +191,7 @@ profile_interval = -1
 ```
 Since `MESA` can't write a profile "every minus one" steps, it will interpet this `-1` as `off`.
 
-## Task 4.5: Ignoring Our History
+## Task 5.5: Ignoring Our History
 This final step is not strictly necessary but can be helpful if you are rerunning multiple times and want to keep a clean working directory. Since we are interested in only specific points in time for this lab and not the evolution of the star over it's whole lifetime, we don't really need a `history.data` file. Similarly, since we aren't going to be restarting our runs in the middle, we won't need photos either. We can **turn history file and photo generation off with the following lines**:
 ```fortran
 photo_interval = -1
@@ -200,9 +200,9 @@ do_history_file = .false.
 >[!IMPORTANT]
 > You should only do this if you are *certain* that you don't need such data. Otherwise, you may be keeping yourself from the data you need.
 
-## Task 5: Test flight.
+## Task 6: Test flight
 At this point, our inlist should be almost complete. To make sure everything is correct, we can **run our inlist**:
-```fortran
+```bash
 ./clean; ./mk; ./rn
 ```
 >[!NOTE]
@@ -304,7 +304,7 @@ At this point, your full inlist should look something like this (make sure you h
 
 ```
 {{< /details >}}
-## Task 6 Something something `run_star_extras.f90`
+## Task 7: Something something `run_star_extras.f90`
 Now we need to make sure we can actually get the data we need. Having `MESA` output a profile at every time step and then finding the specific timesteps that we need is certainly an option here, but that can get tedious very quickly. Instead, we are going to keep profile generation turned "off" and only turn it on when we know we are going to get the data we need.
 
 As a reminder, our goal is to see how chemical composition gradients effect the *g*-mode period spacing. To get a composition gradient, we are going to evolve through the main-sequence and request profiles at different parts of the main-sequence. The best way to quantify this is by the central hydrogen abundance; as hydrogen abundance goes down, it is reasonable to assume that the chemical composition has changed due to fusion products. We are then going to request profiles from `MESA` at different core hydrogen abundances.
@@ -664,7 +664,7 @@ where all we have done is add the line ``s% xtra(1) = s% center_h1``. This will 
 To actually tell `MESA` when to save a profile, we will need to make changes to `extras_finish_step`. At the end of every step, we will compare the current hydrogen abundance to the previous abundance. If both values are bracketing a user-specified hydrogen abundance, then we will ask `MESA` to save a profile. To specify what values we are interested in, we will use another internal array `s% x_ctrl(:)`, which we will specify in our inlist. More on that later. 
 
 First, **just below the line `! s% need_to_update_history_now = .true.` in the `extras_finish_step` subroutine, add the following code:**
-```
+```fortran
       prev_h1 = s% xtra(1)
       
       if ( prev_h1 > s% x_ctrl(1) .and. s% center_h1 <= s% x_ctrl(1) ) then
@@ -676,9 +676,7 @@ First, **just below the line `! s% need_to_update_history_now = .true.` in the `
         s% need_to_update_history_now = .true.
         write(*, *) 'Second checkpoint -- Central hydrogen abundance:' , s% center_h1
 ```
-This code checks the previous hydrogen abundance (which we initially at startup in `extras_startup`) and compares it to our first/second specified `s% x_ctrl(:)` values and the actual hydrogen abundance. If we have reached either of the specified abundances, we tell `MESA` to save a profile by temporarily setting the flag `s% need_to_save_profiles_now` to `.true.`.
-
-However, if you were to try compiling this right now, you would get an error:
+This code checks the previous hydrogen abundance (which we set initially in `extras_startup`) and compares it to our first/second specified `s% x_ctrl(:)` values and the actual hydrogen abundance. If we have reached either of the specified abundances, we tell `MESA` to save a profile by temporarily setting the flag `s% need_to_save_profiles_now` to `.true.`. However, if you were to try compiling this right now, you would get an error:
 ```terminal
 ../src/run_star_extras.f90:265:7:
 
@@ -695,10 +693,118 @@ real(dp) :: prev_h1
 ```
 Now, everything should compile without any errors (`./clean; ./mk`).
 
-## Task 7: I'm stumped for a fun name here
+## Task 8: I'm stumped for a fun name here
 All that is left for us to do now is tell `MESA` what values to check with `x_ctrl(:)`. At the end of the `&controls` namelist in your inlist, include the following block of code:
 ```fortran
    ! extras
    x_ctrl(1) = 0.6d0
    x_ctrl(2) = 0.5d0
 ```
+Now, we are ready to run our model! Go ahead and run with `./clean; ./mk; ./rn`. If all goes well, you should see some plots pop up. Go ahead let that run in the background while we move to the next step.
+
+## Task 9: Catching the vibe
+While we wait for our data, we can prepare our `GYRE` inlist so we can run it as soon as our data is ready. We will start with our inlist from Lab 1:
+```fortran
+&constants
+/
+
+&model
+    model_type = 'EVOL'
+    file = ''
+    file_format = 'FGONG'
+/
+
+&mode
+    l = 1
+    m = 0
+    n_pg_min = -150
+    n_pg_max = -10
+/
+
+&osc
+    outer_bound = 'VACUUM'
+/
+
+&scan
+    grid_type = 'INVERSE'
+    freq_min = 0.2
+    freq_max = 2.5
+    n_freq = 1000
+    freq_units = 'CYC_PER_DAY'
+    freq_min_units = 'CYC_PER_DAY'
+    freq_max_units = 'CYC_PER_DAY'
+/
+
+&rot
+/
+
+&grid
+/
+
+&num
+    diff_scheme = 'COLLOC_GL2'
+/
+
+&ad_output
+    summary_file = ''
+    summary_item_list = 'l,n_pg,m,freq,period'
+    summary_file_format = 'HDF'
+    freq_units = 'CYC_PER_DAY'
+/
+
+&nad_output
+/
+
+```
+Our primary change will be in the `&scan` namelist. Beyond the ZAMS, the modes we are interested in will have different periods. We will need to change the frequency range and number of frequencies we search for. **Replace the lines `freq_min`, `freq_max`, and `n_freq` with these lines**:
+```
+    freq_min = 0.01
+    freq_max = 10.0
+    n_freq = 15000
+```
+We will also need to change the `file` line in the `&model` namelist. Once our run is complete, we will have 3 different profiles that we will need to run `GYRE` on individually. We will start with the first profile, which should have been saved at a core hydrogen abundance of 0.6. Since that is the first profile saved, it will be called `profile1.FGONG.data` in our `LOGS` directory. **Replace the `file` line with this code**:
+```fortran
+file = './LOGS/profile1.FGONG.data'
+```
+Since we will be running `GYRE` multiple times, we will also have to give our output files informative names. Replace the `summary_file` line in the `&ad_output` namelist with this code:
+```fortran
+summary_file = 'hydrogen0p6_summary.h5'
+```
+## Task 10: Running `GYRE`
+Once your model is done running, you should be all set to **run `GYRE` on the first profile**:
+```bash
+$GYRE_DIR/bin/gyre gyre.in
+```
+If all goes well, you should have a file named `hydrogen0p6_summary.h5` in your working directory after `GYRE` completes. We will need to do this two more times, for the profile saved at a hydrogen abundance of 0.3 and the profile saved at the TAMS.
+
+First, **change the file name in `gyre.in` to**:
+```fortran
+file = './LOGS/profile2.FGONG.data'
+```
+then **change the summary file name to**:
+```fortran
+summary_file = 'hydrogen0p3_summary.h5'
+```
+Go ahead and **run `GYRE` again with the new profile**. 
+
+Finally, once that is done, **change the file name and summary names to**:
+```fortran
+file = './LOGS/profile3.FGONG.data'
+```
+```fortran
+summary_file = 'TAMS_summary.h5'
+```
+**Run `GYRE` one more time**. Now, if you **run `ls *.h5`**, you should see the three summary files we made.
+
+Thats it! Now it is time to analyze our data.
+
+## Task 11: analysis
+Download this (TODO: add download link) python file, which will plot the period spacing patterns and save a single `.png` file. Make sure it is in the same directory as your 3 `*.h5` files and **run it with**: 
+```
+python period_spacing.py
+```
+It will save a single file, named `period_spacing.png`. Open it up and see the fruits of your labor!
+
+You should see the periodic dips in the period spacing that we would expect with the chemical gradients that we induced. You should also notice that the dips appear much more coherently for the intermeidate hydrogen abundance of 0.6 than in the 0.3 model, where the chemical gradient has become more involved (???) and is still more coherent than the TAMS dips, which are almost invisible and the period spacing becomes much more noisy.
+
+Take some time to chat with your table about these results. In particular, if you all did different mesh values, compare your results and see what happned!
