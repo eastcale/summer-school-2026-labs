@@ -2,7 +2,7 @@
 
 ## Learning Goals
 
-In this lab, we will be exploring how chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the *g*-mode period spacing. Our goals for this lab are:
+In this lab, we will be exploring how chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the *g*-mode period spacing. For a nice overview, see [Miglio et al., 2008](https://ui.adsabs.harvard.edu/abs/2008MNRAS.386.1487M/abstract). Our goals for this lab are:
 
 - Run `MESA` starting from a precomputed `.mod` file
 - Use `run_star_extras.f90` to control when profiles are saved
@@ -829,7 +829,7 @@ file = './LOGS/profile2.FGONG.data'
 summary_file = 'hydrogen0p3_summary.h5'
 ```
 For the TAMS profile, use:
-```
+```fortran
 file = './LOGS/profile3.FGONG.data'
 summary_file = 'TAMS_summary.h5'
 ```
@@ -844,8 +844,8 @@ Our oscillation calculations are now complete, and the results are ready for ana
 
 The code should create a single plot showing the period-spacing patterns at the three evolutionary stages (hydrogen abundance of 0.5, 0.3, and TAMS).
 
-The period-spacing patterns should show the characteristic dips associated with mode trapping caused by composition gradients. The dips should appear relatively regular in the model with a central hydrogen abundance of 0.5, but become less coherent by the time it reaches 0.3. 
+The period-spacing patterns should show the characteristic dips associated with mode trapping caused by composition gradients. The dips should appear relatively regular in the model with a central hydrogen abundance of 0.5, but become less coherent by the time it reaches 0.3. As the star evolves, the internal composition structure becomes increasingly complex due to ongoing nuclear burning and mixing processes. By the TAMS, the period-spacing pattern should appear significantly noisier, with weaker and less regular trapping signatures.
 
-As the star evolves, the internal composition structure becomes increasingly complex due to ongoing nuclear burning and mixing processes. By the TAMS, the period-spacing pattern should appear significantly noisier, with weaker and less regular trapping signatures.
+You will also see that the dips are evenly spaced in period (see the print statements in the cell). This spacing is directly related to the morphology of the spike in the Brunt-Väisälä profile. To see an the approximate analytical expression for the spacing between dips in terms of the Brunt-Väisälä morphology, see [Miglio et al., 2008](https://ui.adsabs.harvard.edu/abs/2008MNRAS.386.1487M/abstract).
 
 Take some time to talk with your table about these results. In particular, if you used different mesh values, compare your results.
