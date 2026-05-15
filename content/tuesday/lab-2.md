@@ -6,6 +6,7 @@ In this lab, we will be exploring how chemical composition gradients ($\nabla_{\
 
 - Run `MESA` starting from a precomputed `.mod` file
 - Use `run_star_extras.f90` to control when profiles are saved
+- Run `GYRE` at specific evolutionary stages using pulsation-profiles
 
 ## Background Science
 As a review, the oscillation period ($\Pi_{n, \ell}$) for a *g*-mode of radial order $n$ and spherical degree $\ell$ is given by
@@ -22,7 +23,7 @@ $$
 $$ 
 In the asymptotic limit (large $n$) for a chemically homogenous medium (i.e., $\nabla_{\mu}=0$), this spacing is approximately constant. That is what we observed when we plotted $\Delta \Pi_{1}$ vs. $\Pi_{n, 1}$ for our zero-age main-sequence (ZAMS) model in Lab 1. At the ZAMS--the start of hydrogen ignition--`MESA` begins with a chemically homogenous mixture.
 
-As the star evolves beyond the ZAMS, nuclear burning alters the chemical composition of the core and introduces a composition gradient. The gradient causes sharp spikes in the Brunt-Väisälä frequency, which--in an ideal gas--is described by:
+As the star evolves beyond the ZAMS, nuclear burning alters the chemical composition of the core and introduces a composition gradient. The gradient causes peaks in the Brunt-Väisälä frequency, which--in an ideal gas--is described by:
 $$
 N^2 \approx \frac{g^2\rho}{p}\left(\nabla_{\mathrm{ad}}-\nabla+\nabla_{\mu}\right),
 $$
@@ -33,8 +34,15 @@ $$
 \mathrm{and} \quad
 \nabla_{\mu} = \frac{d\ln \mu}{d\ln p}.
 $$
+The three plots below show the Brunt-Väisälä frequency as a function of stellar radius for three different evolutionary stages: zero-age main sequence, intermediate-age main sequence, and terminal-age main sequence. Notice in particular the blue curves, which show the contribution to the Brunt-Väisälä profiles due to the chemical composition gradient. 
 
-If $\nabla_{\mu} \neq 0$, then spikes in the Brunt-Väisälä frequency will *trap* *g*-modes; this mode trapping leads to periodic *dips* in a plot of $\Delta \Pi_{1}$ vs. $\Pi_{n, 1}$. 
+At the ZAMS (left panel), the chemical composition gradient is near zero, creating a smooth Brunt-Väisälä profile. As a result, the asymptotic approximation works well and the period spacing remains nearly constant.
+
+In the intermediate-age main sequence model (middle panel), $\nabla_{\mu} \neq 0$ due to hydrogen burning in the core. This produces a narrow spike in $N^2$. The spike partially reflects and traps some *g*-modes while others penetrate more deeply into the core. Because different modes probe different regions, their periods are shifted by different amounts. This produces the characteristic "dips" or oscillatory deviations from a constant period spacing known as mode trapping.
+
+By the terminal-age main sequence (right panel), the composition gradient has broadened and become more complex as the star exhausts its core hydrogen supply. The $N^2$ feature is no longer a thin, localized spike but an extended region. Instead of clean, coherent trapping signatures, the broader gradient affects a wider range of modes; the resulting perturbations to the mode periods become less regular so the dips in the period spacing pattern appear less coherent.
+
+![Brunts](brunts.png)
 
 In this lab, we will evolve a stellar model through the main sequence and examine how the resulting compositon gradients produce these dips in the period spacing pattern.
 
