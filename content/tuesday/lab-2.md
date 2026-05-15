@@ -2,10 +2,10 @@
 
 ## Learning Goals
 
-In this lab, we will be exploring how chemical different chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the *g*-mode period spacing. Our goals for this lab are:
+In this lab, we will be exploring how chemical composition gradients ($\nabla_{\mu}$, where $\mu$ is the mean-molecular weight) impact the *g*-mode period spacing. Our goals for this lab are:
 
 - Run `MESA` starting from a precomputed `.mod` file
-- Modify `run_star_extras.f90` to output profiles at set points in time 
+- Use `run_star_extras.f90` to control when profiles are saved
 
 ## Background Science
 As a review, the oscillation period ($\Pi_{n, \ell}$) for a *g*-mode of radial order $n$ and spherical degree $\ell$ is given by
@@ -16,13 +16,13 @@ where $\epsilon$ is a small constant and $\Pi_0$ is given by:
 $$
 \Pi_0 = 2\pi^2\left(\int \frac{N}{r}\,dr\right)^{-1},
 $$
-where $N$ is the Brunt-Väisälä frequency and the integral is taken over the propagation cavity of the *g*-mode. The period spacing, $\Delta \Pi_{\ell}$, is then the period difference between two modes of consecutive order and the same spherical degree:
+where $N$ is the Brunt-Väisälä frequency and the integral is taken over the propagation cavity of the *g*-mode. The period spacing, $\Delta \Pi_{\ell}$, is the difference in period between modes of consecutive order with the same spherical degree:
 $$
 \Delta\Pi_{\ell} = \Pi_{n+1, \ell} - \Pi_{n, \ell}.
 $$ 
 In the asymptotic limit (large $n$) for a chemically homogenous medium (i.e., $\nabla_{\mu}=0$), this spacing is approximately constant. That is what we observed when we plotted $\Delta \Pi_{1}$ vs. $\Pi_{n, 1}$ for our zero-age main-sequence (ZAMS) model in Lab 1. At the ZAMS--the start of hydrogen ignition--`MESA` begins with a chemically homogenous mixture.
 
-However, as soon as the star evolves beyond the ZAMS, hydrogen fusion disrupts the chemical homogeneity and introduces a chemical gradient. The gradient causes sharp spikes in the Brunt-Väisälä frequency, which--in an ideal gas--is described by:
+As the star evolves beyond the ZAMS, nuclear burning alters the chemical composition of the core and introduces a composition gradient. The gradient causes sharp spikes in the Brunt-Väisälä frequency, which--in an ideal gas--is described by:
 $$
 N^2 \approx \frac{g^2\rho}{p}\left(\nabla_{\mathrm{ad}}-\nabla+\nabla_{\mu}\right),
 $$
@@ -34,10 +34,12 @@ $$
 \nabla_{\mu} = \frac{d\ln \mu}{d\ln p}.
 $$
 
-If $\nabla_{\mu} \neq 0$, then spikes in the Brunt-Väisälä frequency will *trap* *g*-modes; this mode trapping leads to periodic *dips* in a plot of $\Delta \Pi_{1}$ vs. $\Pi_{n, 1}$. We are going to induce a chemical gradient in our model by evolving through the main-sequence to investigate these dips.
+If $\nabla_{\mu} \neq 0$, then spikes in the Brunt-Väisälä frequency will *trap* *g*-modes; this mode trapping leads to periodic *dips* in a plot of $\Delta \Pi_{1}$ vs. $\Pi_{n, 1}$. 
+
+In this lab, we will evolve a stellar model through the main sequence and examine how the resulting compositon gradients produce these dips in the period spacing pattern.
 
 ## Task 1: A Fresh Start
-**Start by copying a clean working directory from `$MESA_DIR/star/work` and placing it where you want it to be.** It is helpful to rename it something descriptive at this point as well--something like `day2_lab2`.
+**Start by copying a clean working directory from `$MESA_DIR/star/work` and placing somewhere else.** Give the new directory a descriptive name--something like `day2_lab2`.
 
 > [!WARNING]
 > It is generally not a great idea to work directly inside the clean `$MESA_DIR/star/work` work directory; instead, you should copy it and place it somewhere else before making any changes.
@@ -47,19 +49,19 @@ We will copy the clean directory from `$MESA_DIR/star/work` and place it somewhe
 ```bash
 cp -r $MESA_DIR/star/work ./day2_lab2
 ```
-The `-r` is a flag that tells the system to copy the work directory *recursively*. In other words, it copies all of the contents inside the directory, not just the directory itself. If you have any problems, make sure that your `MESA` environment variables are set. This will not work if `$MESA_DIR` is undefined.
+The `-r` is a flag that tells the system to copy the work directory *recursively*. In other words, it copies all of the contents inside the directory, not just the directory itself. If you have any problems, make sure that your `MESA` environment variables are set. This command will fail if the `$MESA_DIR` environment variable is undefined.
 {{< /details >}}
 
 ## Task 2: Getting the (`&star_`) Job Done
-For now, we are only going to edit `inlist_project`; open it up and take a second to see what the basic work inlist looks like.
+For now, we are only going to edit `inlist_project`; **open the file and briefly look through the default inlist structure**.
 
-We are going to build our inlist one namelist at a time. Starting at the top, we are going to alter the `&star_job` namelist first. For this section, the [star_job reference page](https://docs.mesastar.org/en/26.4.1/reference/star_job.html) will be a helpful resource.
+We will configure the inlist one namelist at a time. Starting at the top, we are going to alter the `&star_job` namelist first. For this section, the [star_job reference page](https://docs.mesastar.org/en/26.4.1/reference/star_job.html) will be a helpful resource.
 
 Rather than create a pre-main sequence model every time we run our inlist, we are going to start from a pre-computed zero-age main sequence model named `zams.mod`, which you can download here (TODO: figure out how to download). This model is for a $5 \, \mathrm{M_{\odot}}$ star with solar metallicty at the zero-age main sequence.
 
-We also won't need to save a model at the end of our run. Therefore, we **can remove the three lines that refer to creating a pre-main sequence model or saving a model at termination**.
+We also won't need to save a model at the end of our run. **Remove the three lines related to creating a pre-main sequence model and saving a model at termination**.
 
-In their place, we need to load our `zams.mod` file and tell `MESA` to start our new run there. **Look at the `star_job` reference page and see if you can sort out how to load a saved model**. If you get stuck you can expand the hint below.
+In their place, we need to load our `zams.mod` file and tell `MESA` to start our new run there. **Use the `&star_job` reference page to determine how to load a saved model**. If you get stuck you can expand the hint below.
 
 {{< details title="Hint: Loading a saved model" closed="true" >}}
 To load a saved model, we need to tell `MESA` to load a model, *and* tell it the name of the model we want to load. We do with these to lines:
@@ -90,15 +92,15 @@ We don't need to make any changes to the `&eos` and `&kap` namelists. They are s
 > For science cases, you may want to consider changing parameters in these namelists. It isn't guaranteed that the defaults will always be right for your particular case.
 
 ## Task 3: Taking `&control[s]`
-Now we can move on to the `&controls` namelist. For this section, the [controls reference page](https://docs.mesastar.org/en/26.4.1/reference/controls.html) will be helpful.
+Next, we will edit the `&controls` namelist. For this section, the [controls reference page](https://docs.mesastar.org/en/26.4.1/reference/controls.html) will be helpful.
 
 The basic `inlist_project` file helpfully breaks the `&controls` namelist into smaller chunks that can tell you about what the namelist can do. 
 
-Starting in the "starting specifications" section, we need to **change the `initial_mass` to 5** since our initial model will expect a 5 solar-mass star. We can leave the metallicity as it is.
+**In the "starting specifications section, set `initial_mass = 5`"** to match the mass of our `zams.mod` model. We can leave the metallicity as it is.
 
-We can tell our model when to terminate in the "when to stop" section. The current stopping condition is set to terminate at the zero-age main sequence. Since we are *starting* at the ZAMS, we can go ahead and **delete everything from `! when to stop` to `! wind`**. 
+We can tell our model when to terminate in the "when to stop" section. The current stopping condition is set to terminate at the zero-age main sequence. Because the run now begins at the ZAMS, the default stopping conditions are no longer appropriate. **Delete everything between `! when to stop` and `! wind`**.
 
-In it's place, we will add our own stopping condition. Since we are interested in what is happening during the main-sequence, we just need to pick a stopping condition that gets us through the main sequence. To make sure this happens, we are going to end our model at the terminal-age main sequence. This will also give us an opportunity to see what the period spacing looks like there. 
+In it's place, we will add our own stopping condition. Since we want to evolve through the entire main sequence, we need a stopping condition at the terminal-age main sequence (TAMS). This will also allow us to compare the period spacing pattern near the end of core hydrogen burning.
 
 **Explore the "when to stop" section of the controls reference page and find a stopping condition that terminates at the TAMS**. If you get stuck, feel free to expand the following hint.
 
@@ -107,14 +109,14 @@ It is likely that in your exploration you came across this stopping condition:
 ```fortran
 stop_at_phase_TAMS = .true.
 ```
-This condition will definitely terminate when we want it to, but the preset `stop_at_phase_X` conditions have definitions based on the physics happening at that phase; it is a good idea to familiarize yourself with the actual definitions before using a phase-based stopping condition. 
+This condition stops the model at the correct evolutionary stage, but it is important to understand how `MESA` defines each evolutionary phase before using phase-based stopping conditions.
 
 If you look for the subroutine `set_phase_of_evolution` in `$MESA_DIR/star/private/star_utils.f90` and search for the definition of `phase_TAMS`, you will see that it is defined by the core hydrogen abundance:
 ```fortran
          else if (center_h1 <= 1d-6) then
             s% phase_of_evolution = phase_TAMS
 ```
-In other words, `phase_TAMS` is triggered when central hydrogen dips below 1 part in a million. That means that `stop_at_phase_TAMS = .true.` is probably okay to use as a stopping condition in our case; however, an entirely equivalent stopping condition could have been:
+In other words, `phase_TAMS` is triggered when central hydrogen abundance falls below $10^{-6}$. That means that `stop_at_phase_TAMS = .true.` is probably okay to use as a stopping condition in our case; however, an entirely equivalent stopping condition could have been:
 ```fortran
 xa_central_lower_limit_species(1) = 'h1'
 xa_central_lower_limit(1) = 1d-6
@@ -162,22 +164,28 @@ At this point, your `&controls` namelist should look something like:
 ```
 {{< /details >}}
 
-## Task 4: Insert funny mesh pun here
-The next section we will need to change is the "mesh" section. This section is for controls related to the spatial resolution of our model. `MESA` operates by separating a stellar model into concentric rings with some thickness we will call $\Delta r$. To make sure that important physics are captured, `MESA` also has an adaptive mesh refinement (AMR) algorithm that will decrease $\Delta r$ in regions as needed or increase $\Delta r$ in regions where high resolution isn't necessary. However, it is entirely possible that the AMR algorithm doesn't fully capture the physics you are interested in--sometimes you may want a higher spatial resolution. In our case, `GYRE` is sensitive to spatial resolution, so we will want to increase the default resolution.
+## Task 4: Mesh Happens
+The next section we will need to change is the "mesh" section. This section controls the spatial resolution of the stellar model. 
 
-To increase the resolution of our model, we are going to use the variable `mesh_delta_coeff`, which is a multiplicative factor on $\Delta r$. In other words, it is $a$ in the expression $a\Delta r$. By default, `MESA` sets `mesh_delta_coeff = 1`. If we want to *increase* the resolution, we need to set `mesh_delta_coeff` to a value *less than 1* to break our model into smaller chunks.
+`MESA` divides a stellar model into concentric shells with radial thickness $\Delta r$. To make sure that important physics are captured, `MESA` also has an adaptive mesh refinement (AMR) algorithm that can change $\Delta r$ as needed. In some cases, however, the default AMR settings may not provide enough resolution for the physics of interest.
 
-Increasing the resolution of a model can be a bit more computationally expensive depending on your machine. Lower values for `mesh_delta_coeff` will take longer to ran than others. It is then up to you to make an informed decision based on the specifications of your specific machine. The primary factor that will effect the time it takes your model to run is the `OMP_NUM_THREADS` parameter you have set in your environment variables. Based on the value you set there, **use the following plot to choose a value for `mesh_delta_coeff` that will ensure your model will run in less than 5 minutes**. Essentially, if you have `OMP_NUM_THREADS > 2`, any value will work; feel free to pick any value (less than 1!) and be ready to compare with your tablemates at the end of the lab.
+In this lab, `GYRE` is particularly sensitive to spatial resolution, so we will want to increase the default resolution.
+
+To increase the resolution of our model, we are going to use the variable `mesh_delta_coeff`, which is a multiplicative factor on $\Delta r$. By default, `MESA` sets `mesh_delta_coeff = 1`. Smaller values of `mesh_delta_coeff` increases the spatial resolution by creating more, thinner shells.
+
+Increasing the resolution of a model can be a bit more computationally expensive depending on your machine. Lower values of `mesh_delta_coeff` will increase the runtime. It is then up to you to make an informed decision based on the specifications of your specific machine. 
+
+The primary factor that will effect the runtime is the `OMP_NUM_THREADS` parameter you have set in your environment variables. **Use the timing plot below to choose a value of `mesh_delta_coeff` that should complete in under five minutes on your machine**. Essentially, if you have `OMP_NUM_THREADS > 2`, any value will work; feel free to pick any value (less than 1!) and compare with others at your table later in the lab.
 
 ![Timing test](timing.png)
 
-## Task 5: Insert funny output pun here
-Finally, we will need to edit the "output" section of the namelist to make sure that our model makes the data we need to give to GYRE. `MESA` does not create a pulsation profile by default, so we need to turn on the correct flag to make sure it does. **Explore the "controls for output" section of the controls reference page and find the flag to write pulsation profiles for GYRE**. Check the following hint if you get stuck or want to check your answer
+## Task 5: Output, Output, Read All About It!
+Next, we will configure the output settings so `MESA` writes profiles that can be used by `GYRE`. By default, `MESA` does not write pulsation-profile data. **Explore the "controls for output" section of the controls reference page and identify the flag that enables pulsation-profile output for `GYRE`**. Check the following hint if you get stuck or want to check your answer
 
 {{< details title="Hint: Saving pulsation profiles for `GYRE`" closed="true" >}}
-The flag we are interested in is `write_pulse_data_with_profile`, which will save the data we need for `GYRE` later; set it to `.true.`.
+The flag we are interested in is `write_pulse_data_with_profile`, which tells `MESA` to save pulsation-profile data for use in `GYRE`; set it to `.true.`.
 
-We also need to specify the format of the pulsation data. We are going to use `.FGONG` files, which are compatible with `GYRE`. Altogether, your output section should look something like:
+We also need to specify the format of the pulsation data. We are going to use the `.FGONG` format, which is compatible with `GYRE`. Altogether, your output section should look something like:
 ```fortran
    ! output
 
@@ -187,14 +195,18 @@ We also need to specify the format of the pulsation data. We are going to use `.
 ```
 {{< /details >}}
 
-With the correct flag, `MESA` will write a unique `.FGONG.data` file for every profile it creates. We want to make sure that `MESA` only writes these profiles when we want them and doesn't write any profiles otherwise. This will require some extra code in our `./src/run_star_extras.f90`, which we will get to later. In the meantime, we are going to **turn profile generation off by including the following line in our inlist**:
+With the correct flag, `MESA` will write a unique `.FGONG.data` file for every profile it creates. Since we are only interested in specific stages, we will need to tell `MESA` when to write profiles. This will require some extra code in our `./src/run_star_extras.f90`, which we will get to later. 
+
+In the meantime, **turn profile generation off by including the following line in the inlist**:
 ```fortran
 profile_interval = -1
 ```
-Since `MESA` can't write a profile "every minus one" steps, it will interpet this `-1` as `off`.
+Since a negative interval isn't possible, `MESA` interprets this as disabling automatic profile output.
 
-## Task 5.5: Ignoring Our History
-This final step is not strictly necessary but can be helpful if you are rerunning multiple times and want to keep a clean working directory. Since we are interested in only specific points in time for this lab and not the evolution of the star over it's whole lifetime, we don't really need a `history.data` file. Similarly, since we aren't going to be restarting our runs in the middle, we won't need photos either. We can **turn history file and photo generation off with the following lines**:
+## Task 5.5: No History, No Problems
+This step is optional, but it can help keep the working directory clean during repeated runs.
+
+Since we are interested in only specific points in time for this lab and not the evolution of the star over it's whole lifetime, we don't need a full `history.data` file. Since we also do not plan to restart uninterrupted rus, photo files are unnecessary. **Turn history file and photo generation off with the following lines**:
 ```fortran
 photo_interval = -1
 do_history_file = .false.
@@ -202,15 +214,15 @@ do_history_file = .false.
 >[!IMPORTANT]
 > You should only do this if you are *certain* that you don't need such data. Otherwise, you may be keeping yourself from the data you need.
 
-## Task 6: Test flight
-At this point, our inlist should be almost complete. To make sure everything is correct, we can **run our inlist**:
+## Task 6: Engine Ignition
+The inlist should now be complete enough to test. **Compile and run the model with**:
 ```bash
 ./clean; ./mk; ./rn
 ```
 >[!NOTE]
-> Placing a semicolon between subsequent commands lets you run each command in one line rather than typing/running each command individually.
+> Placing a semicolon between subsequent commands allows multiple commands to be executed sequentially on a single line.
 
-If data starts printing to the terminal, your inlist is correct and you are ready to move to the next step. Go ahead and **terminate the run (`ctrl+c`)**.
+If the model begins evolving and output appears in the terminal, the inloist is working correctly. **Once the run starts successfully, stop it with `Ctrl+C`**.
 
 If you have gotten an error, work with your TA to find the cause or expand the following hint for a complete inlist.
 
@@ -305,13 +317,19 @@ At this point, your full inlist should look something like this (make sure you h
 / ! end of controls namelist
 
 ```
+[!NOTE]
+> As you work through the lab, make sure that you remove old data before you re-run: `rm -rf LOGS`.
 {{< /details >}}
-## Task 7: Something something `run_star_extras.f90`
-Now we need to make sure we can actually get the data we need. Having `MESA` output a profile at every time step and then finding the specific timesteps that we need is certainly an option here, but that can get tedious very quickly. Instead, we are going to keep profile generation turned "off" and only turn it on when we know we are going to get the data we need.
+## Task 7: Extra! Extra! Read `run_star_extras.f90`!
+Next, we will modify `run_star_extras.f90` so that `MESA` saves profiles at specific evolutionary stages.
+[!NOTE]
+> In this section, it is good practice to recompile any time you make a major change to `run_star_extras.f90`. Even when you aren't explicitly told, feel free to run `./clean; ./mk` as often as you want!
 
-As a reminder, our goal is to see how chemical composition gradients effect the *g*-mode period spacing. To get a composition gradient, we are going to evolve through the main-sequence and request profiles at different parts of the main-sequence. The best way to quantify this is by the central hydrogen abundance; as hydrogen abundance goes down, it is reasonable to assume that the chemical composition has changed due to fusion products. We are then going to request profiles from `MESA` at different core hydrogen abundances.
+Although `MESA` could save a profile at every timestep, searching through all of those outputs would quickly become inconvenient. Instead, we will keep automatic profile generation off and only request profiles when we want them.
 
-To do this, we are going to have to delve into `run_star_extras.f90`. **In your working directory, open up `./src/run_star_extras.f90` and take a look at it**. You should see something like this:
+Remember that our goal is to see how chemical composition gradients effect the *g*-mode period spacing. As the model evolves through the main sequence, nuclear fusion gradually builds composition gradients in the stellar interior. We will save profiles at a few set values of the central hydrogen abundance to track this evolution.
+
+To do this, we are going to have to delve into `run_star_extras.f90`. **In your working directory, open `./src/run_star_extras.f90` and inspect the default template**. You should see something like this:
 ```fortran
 ! ***********************************************************************
 !
@@ -349,7 +367,9 @@ contains
 end module run_star_extras
 
 ```
-This is the basic `run_star_extras.f90` format. We first need to find `standard_run_star_extras.inc` and copy all of its contents to our file. To find it, **run the following command in your terminal**:
+This file provides tools for users to add custom behavior to a `MESA` run. 
+
+First, We first need to find `standard_run_star_extras.inc` and copy all of its contents to our file. To find it, **run the following command in your terminal**:
 ```bash
 find $MESA_DIR/*/standard_run_star_extras.inc
 ```
@@ -636,17 +656,19 @@ end module run_star_extras
 
 ```
 {{< /details >}}
-Before we do anything else, it is a good idea to recompile and make sure that our file is correct. To do this, **run the following in your terminal**:
+Before making further changes, **recompile the work directory to verify that the file is correct**:
 ```bash
 ./clean; ./mk
 ```
-If this runs without error, great! You are ready for the next step. If you get an error, take some time to debug with your TA/tablemates before moving forward. Remember that the previous hint has a correct version should you need it.
+If compilation is successful, continue to the next step. If you get an error, take some time to debug with your TA/tablemates before moving forward. Remember that the previous hint has a correct version should you need it.
 
-Your `run_star_extras.f90` file now has a series of subroutines that give us a hand in every step of `MESA`. To see a full flow of control diagram (and some extra information about using `run_star_extras.f90`), see ["Extending MESA"](https://docs.mesastar.org/en/latest/using_mesa/extending_mesa.html) on the docs.
+The expanded template contains several subroutines that `MESA` calls at different points during the evolution. To see a full flow of control diagram (and some extra information about using `run_star_extras.f90`), see ["Extending MESA"](https://docs.mesastar.org/en/latest/using_mesa/extending_mesa.html) on the docs.
 
-The only subroutines we will be touching in this lab are `extras_startup`--which is run only once at the star of a `MESA` run--and `extras_finish_step`, which is run at the end of every successfully converged timestep. 
+In this lab, we will modify only two subroutines:
+- "`extras_startup`", which runs once at the beginning of a model
+- "`extras_finish_step`", which runs after each successfully converged timestep.
 
-In `extras_finish_step`, we need to define a variable for the initial core hydrogen abundance, which we will store in `s% xtra(1)`, which is an internal variable that `run_star_extras.f90` will use. **Replace the entire `extras_startup` subroutine with the following code**:
+In `extras_startup`, we will begin by storing the initial hydrogen abundance when the run starts. `MESA` provides the internal array `s% xtra(:)` for storing temporary data. We will store the initial central hydrogen abundance in `s% xtra(1)`. **Replace the entire `extras_startup` subroutine with the following code**:
 ```fortran
    subroutine extras_startup(id, restart, ierr)
       integer, intent(in) :: id
@@ -661,9 +683,11 @@ In `extras_finish_step`, we need to define a variable for the initial core hydro
       if (ierr /= 0) return
    end subroutine extras_startup
 ```
-where all we have done is add the line ``s% xtra(1) = s% center_h1``. This will internally store the initial hydrogen abundance, which we will need to use in our next step.
+Where we have added the line ``s% xtra(1) = s% center_h1``.
 
-To actually tell `MESA` when to save a profile, we will need to make changes to `extras_finish_step`. At the end of every step, we will compare the current hydrogen abundance to the previous abundance. If both values are bracketing a user-specified hydrogen abundance, then we will ask `MESA` to save a profile. To specify what values we are interested in, we will use another internal array `s% x_ctrl(:)`, which we will specify in our inlist. More on that later. 
+Next, we will modify `extras_finish_step` so that `MESA` saves a profile whenever the central hydrogen abundance crosses one of our target values. At the end of each timestep, our code will compare the previous central hydrogen abundance to the current value. If the target abundance lies between the two values, `MESA` will save a profile.
+
+We will store the target abundances in the user-defined control array `s% x_ctrl(:)`, which we will set in the inlist later. `x_ctrl(:)` is a user-controlled array that allows values from the inlist to be accessed neatly inside `run_star_extras.f90`.
 
 First, **just below the line `! s% need_to_update_history_now = .true.` in the `extras_finish_step` subroutine, add the following code:**
 ```fortran
@@ -678,7 +702,7 @@ First, **just below the line `! s% need_to_update_history_now = .true.` in the `
         s% need_to_update_history_now = .true.
         write(*, *) 'Second checkpoint -- Central hydrogen abundance:' , s% center_h1
 ```
-This code checks the previous hydrogen abundance (which we set initially in `extras_startup`) and compares it to our first/second specified `s% x_ctrl(:)` values and the actual hydrogen abundance. If we have reached either of the specified abundances, we tell `MESA` to save a profile by temporarily setting the flag `s% need_to_save_profiles_now` to `.true.`. However, if you were to try compiling this right now, you would get an error:
+This code checks whether the model crossed either of our target hydrogen abundances during the most recent timestep. If it did, the profile-save flag is temporarily enabled. However, if you were to try compiling this right now, you would get an error:
 ```terminal
 ../src/run_star_extras.f90:265:7:
 
@@ -689,23 +713,32 @@ make: *** [run_star_extras.o] Error 1
 
 FAILED
 ```
-This error is telling us that the variable `prev_h1` has not been given a type. In `FORTRAN`, we need to manually assign types to all variables. In this case, `prev_h1` is a real, floating point value. To make that clear to our compiler, **add the following line after `type (star_info), pointer :: s`**:
+This occurs because `prev_h1` has not been declared. In Fortran, variables must be explicitly declared before they are used. Since `prev_h1` stores a floating-pont value, we will specify that. **Add the following line after `type (star_info), pointer :: s`**:
+
 ```fortran
 real(dp) :: prev_h1
 ```
 Now, everything should compile without any errors (`./clean; ./mk`).
 
-## Task 8: I'm stumped for a fun name here
-All that is left for us to do now is tell `MESA` what values to check with `x_ctrl(:)`. At the end of the `&controls` namelist in your inlist, include the following block of code:
+## Task 8: Hydrogen Checkpoints
+Finally, we will define the target hydrogen abundances in the inlist.
+
+**Add the following lines near the end of the `&controls` namelist**:
 ```fortran
    ! extras
    x_ctrl(1) = 0.6d0
-   x_ctrl(2) = 0.5d0
+   x_ctrl(2) = 0.3d0
 ```
-Now, we are ready to run our model! Go ahead and run with `./clean; ./mk; ./rn`. If all goes well, you should see some plots pop up. Go ahead let that run in the background while we move to the next step.
+Now, we are ready to run our model! **Go ahead and run with `./clean; ./mk; ./rn`**. 
 
-## Task 9: Catching the vibe
-While we wait for our data, we can prepare our `GYRE` inlist so we can run it as soon as our data is ready. We will start with our inlist from Lab 1:
+If the model starts successfully, `pgstar` windows should appear and the evolution should begin. Let the model run in the background while you prepare the `GYRE` input file.
+
+If you get any errors, work with your table to debug, or expand the following hints for a correct inlist and `run_star_extras.f90`.
+
+## Task 9: Catching the `GYRE`-ations
+While the model evolves, we will prepare the `GYRE` inlist so the oscillation calculations can be run immediately after the profiles are generated.
+
+Begin with the `GYRE` inlist from Lab 1:
 ```fortran
 &constants
 /
@@ -758,13 +791,13 @@ While we wait for our data, we can prepare our `GYRE` inlist so we can run it as
 /
 
 ```
-Our primary change will be in the `&scan` namelist. Beyond the ZAMS, the modes we are interested in will have different periods. We will need to change the frequency range and number of frequencies we search for. **Replace the lines `freq_min`, `freq_max`, and `n_freq` with these lines**:
+Our primary change will be in the `&scan` namelist. As our star evolves past the ZAMs, the mode frequencies shift. We will have to expand the scan range and frequency resolution. **Replace the lines `freq_min`, `freq_max`, and `n_freq` with these lines**:
 ```
     freq_min = 0.01
     freq_max = 10.0
     n_freq = 15000
 ```
-We will also need to change the `file` line in the `&model` namelist. Once our run is complete, we will have 3 different profiles that we will need to run `GYRE` on individually. We will start with the first profile, which should have been saved at a core hydrogen abundance of 0.6. Since that is the first profile saved, it will be called `profile1.FGONG.data` in our `LOGS` directory. **Replace the `file` line with this code**:
+Next, we will point `GYRE` to the first saved model, which should have been saved at a central hydrogen abundance of 0.6. Because it is was the first profile generated, it should be named `./LOGS/profile1.FGONG.data`. **Replace the `file` line with this code**:
 ```fortran
 file = './LOGS/profile1.FGONG.data'
 ```
@@ -772,41 +805,38 @@ Since we will be running `GYRE` multiple times, we will also have to give our ou
 ```fortran
 summary_file = 'hydrogen0p6_summary.h5'
 ```
-## Task 10: Running `GYRE`
-Once your model is done running, you should be all set to **run `GYRE` on the first profile**:
+## Task 10: `GYRE` and Away
+After the stellar evolution finishes, **run `GYRE` on the first profile**:
 ```bash
 $GYRE_DIR/bin/gyre gyre.in
 ```
-If all goes well, you should have a file named `hydrogen0p6_summary.h5` in your working directory after `GYRE` completes. We will need to do this two more times, for the profile saved at a hydrogen abundance of 0.3 and the profile saved at the TAMS.
+If all goes well, you should have a file named `hydrogen0p6_summary.h5` in your working directory after `GYRE` completes. 
 
-First, **change the file name in `gyre.in` to**:
+We will repeat this process for the remaining profiles (saved at hydrogen abundance 0.3 and at the TAMS).
+
+For the second profile, use:
 ```fortran
 file = './LOGS/profile2.FGONG.data'
-```
-then **change the summary file name to**:
-```fortran
 summary_file = 'hydrogen0p3_summary.h5'
 ```
-Go ahead and **run `GYRE` again with the new profile**. 
-
-Finally, once that is done, **change the file name and summary names to**:
-```fortran
-file = './LOGS/profile3.FGONG.data'
+For the TAMS profile, use:
 ```
-```fortran
+file = './LOGS/profile3.FGONG.data'
 summary_file = 'TAMS_summary.h5'
 ```
-**Run `GYRE` one more time**. Now, if you **run `ls *.h5`**, you should see the three summary files we made.
-
-Thats it! Now it is time to analyze our data.
-
-## Task 11: analysis
-Download this (TODO: add download link) python file, which will plot the period spacing patterns and save a single `.png` file. Make sure it is in the same directory as your 3 `*.h5` files and **run it with**: 
+**Run `GYRE` after each change**. When finished the directory should contain three summary files:
+```bash
+ls *.h5
 ```
-python period_spacing.py
-```
-It will save a single file, named `period_spacing.png`. Open it up and see the fruits of your labor!
+Our oscillation calculations are now complete, and the results are ready for analysis.
 
-You should see the periodic dips in the period spacing that we would expect with the chemical gradients that we induced. You should also notice that the dips appear much more coherently for the intermeidate hydrogen abundance of 0.6 than in the 0.3 model, where the chemical gradient has become more involved (???) and is still more coherent than the TAMS dips, which are almost invisible and the period spacing becomes much more noisy.
+## Task 11: Reading the Tea Leaves
+**Make a personal copy of {this}[TODO: link] Google Colab notebook and upload the three `*.h5` files using the "Upload Files" button.**
 
-Take some time to chat with your table about these results. In particular, if you all did different mesh values, compare your results and see what happned!
+The code should create a single plot showing the period-spacing patterns at the three evolutionary stages (hydrogen abundance of 0.5, 0.3, and TAMS).
+
+The period-spacing patterns should show the characteristic dips associated with mode trapping caused by composition gradients. The dips should appear relatively regular in the model with a central hydrogen abundance of 0.5, but become less coherent by the time it reaches 0.3. 
+
+As the star evolves, the internal composition structure becomes increasingly complex due to ongoing nuclear burning and mixing processes. By the TAMS, the period-spacing pattern should appear significantly noisier, with weaker and less regular trapping signatures.
+
+Take some time to talk with your table about these results. In particular, if you used different mesh values, compare your results.
