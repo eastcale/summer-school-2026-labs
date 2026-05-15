@@ -36,13 +36,14 @@ $$
 $$
 The three plots below show the Brunt-Väisälä frequency as a function of stellar radius for three different evolutionary stages: zero-age main sequence, intermediate-age main sequence, and terminal-age main sequence. Notice in particular the blue curves, which show the contribution to the Brunt-Väisälä profiles due to the chemical composition gradient. 
 
-At the ZAMS (left panel), the chemical composition gradient is near zero, creating a smooth Brunt-Väisälä profile. As a result, the asymptotic approximation works well and the period spacing remains nearly constant.
+![Brunts](brunts.png)
 
-In the intermediate-age main sequence model (middle panel), $\nabla_{\mu} \neq 0$ due to hydrogen burning in the core. This produces a narrow spike in $N^2$. The spike partially reflects and traps some *g*-modes while others penetrate more deeply into the core. Because different modes probe different regions, their periods are shifted by different amounts. This produces the characteristic "dips" or oscillatory deviations from a constant period spacing known as mode trapping.
+At the ZAMS (left panel), the chemical composition gradient is near zero, creating a smooth Brunt-Väisälä profile. As a result, 
+the asymptotic approximation works well and the period spacing remains nearly constant.
+
+In the intermediate-age main sequence model (middle panel), $\nabla_{\mu} \neq 0$ due to hydrogen burning in the core. This produces a narrow spike in $N^2$. The spike partially reflects and traps some *g*-modes while others penetrate more deeply into the core. Because different modes now probe different regions, their periods are shifted by different amounts. This produces the characteristic "dips" or oscillatory deviations from a constant period spacing.
 
 By the terminal-age main sequence (right panel), the composition gradient has broadened and become more complex as the star exhausts its core hydrogen supply. The $N^2$ feature is no longer a thin, localized spike but an extended region. Instead of clean, coherent trapping signatures, the broader gradient affects a wider range of modes; the resulting perturbations to the mode periods become less regular so the dips in the period spacing pattern appear less coherent.
-
-![Brunts](brunts.png)
 
 In this lab, we will evolve a stellar model through the main sequence and examine how the resulting compositon gradients produce these dips in the period spacing pattern.
 
