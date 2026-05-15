@@ -66,7 +66,7 @@ For now, we are only going to edit `inlist_project`; **open the file and briefly
 
 We will configure the inlist one namelist at a time. Starting at the top, we are going to alter the `&star_job` namelist first. For this section, the [star_job reference page](https://docs.mesastar.org/en/26.4.1/reference/star_job.html) will be a helpful resource.
 
-Rather than create a pre-main sequence model every time we run our inlist, we are going to start from a pre-computed zero-age main sequence model named `zams.mod`, which you can download here (TODO: figure out how to download). This model is for a $5 \, \mathrm{M_{\odot}}$ star with solar metallicty at the zero-age main sequence.
+Rather than create a pre-main sequence model every time we run our inlist, we are going to start from a pre-computed zero-age main sequence model named `zams.mod`, which you can download [here]{https://drive.google.com/file/d/1LRvneKDNPma17G6-T4otPss9f8AyxP2T/view?usp=drive_link}. This model is for a $5 \, \mathrm{M_{\odot}}$ star with solar metallicty at the zero-age main sequence.
 
 We also won't need to save a model at the end of our run. **Remove the three lines related to creating a pre-main sequence model and saving a model at termination**.
 
@@ -802,8 +802,8 @@ Begin with the `GYRE` inlist from Lab 1:
 ```
 Our primary change will be in the `&scan` namelist. As our star evolves past the ZAMs, the mode frequencies shift. We will have to expand the scan range and frequency resolution. **Replace the lines `freq_min`, `freq_max`, and `n_freq` with these lines**:
 ```
-    freq_min = 0.01
-    freq_max = 10.0
+    freq_min = 0.1
+    freq_max = 1
     n_freq = 15000
 ```
 Next, we will point `GYRE` to the first saved model, which should have been saved at a central hydrogen abundance of 0.6. Because it is was the first profile generated, it should be named `./LOGS/profile1.FGONG.data`. **Replace the `file` line with this code**:
@@ -840,7 +840,7 @@ ls *.h5
 Our oscillation calculations are now complete, and the results are ready for analysis.
 
 ## Task 11: Reading the Tea Leaves
-**Make a personal copy of {this}[TODO: link] Google Colab notebook and upload the three `*.h5` files using the "Upload Files" button.**
+**Make a *personal copy* of [this]{https://colab.research.google.com/drive/1HLO-UETt9uTcHpkvyozsZS4BrAUETmZS?usp=sharing} Google Colab notebook. Run the file ("Run All" in the control bar) and upload your summary files using the "Choose Files" button when it appears.**
 
 The code should create a single plot showing the period-spacing patterns at the three evolutionary stages (hydrogen abundance of 0.5, 0.3, and TAMS).
 
