@@ -326,9 +326,9 @@ At this point, your full inlist should look something like this (make sure you h
 / ! end of controls namelist
 
 ```
+{{< /details >}}
 [!NOTE]
 > As you work through the lab, make sure that you remove old data before you re-run: `rm -rf LOGS`.
-{{< /details >}}
 ## Task 7: Extra! Extra! Read `run_star_extras.f90`!
 Next, we will modify `run_star_extras.f90` so that `MESA` saves profiles at specific evolutionary stages.
 [!NOTE]
