@@ -327,11 +327,11 @@ At this point, your full inlist should look something like this (make sure you h
 
 ```
 {{< /details >}}
-[!NOTE]
+>[!NOTE]
 > As you work through the lab, make sure that you remove old data before you re-run: `rm -rf LOGS`.
 ## Task 7: Extra! Extra! Read `run_star_extras.f90`!
 Next, we will modify `run_star_extras.f90` so that `MESA` saves profiles at specific evolutionary stages.
-[!NOTE]
+>[!NOTE]
 > In this section, it is good practice to recompile any time you make a major change to `run_star_extras.f90`. Even when you aren't explicitly told, feel free to run `./clean; ./mk` as often as you want!
 
 Although `MESA` could save a profile at every timestep, searching through all of those outputs would quickly become inconvenient. Instead, we will keep automatic profile generation off and only request profiles when we want them.
